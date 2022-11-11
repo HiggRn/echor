@@ -1,26 +1,19 @@
-use clap::{App, Arg};
+use clap::{arg, command};
 
 fn main() {
-    let matches = App::new("echor")
-        .version("0.1.0")
-        .about("echo in Rust")
-        .arg(
-            Arg::with_name("text")
-                .value_name("TEXT")
-                .help("Input text")
-                .required(true)
-                .min_values(1)
-        )
-        .arg(
-            Arg::with_name("omit_newline")
-                .short("n")
-                .help("Do not print newline")
-                .takes_value(false)
-        )
+    let matches = command!()
+        .args(&[
+            arg!(text: <TEXT> "Input text")
+                .num_args(1..),
+            arg!(omit_newline: -n "Do not print newline")
+        ])
         .get_matches();
     
-    let text = matches.values_of_lossy("text").unwrap();
-    let omit_newline = matches.is_present("omit_newline");
+    let text: Vec<String> = matches.get_many::<String>("text")
+        .unwrap()
+        .map(String::clone)
+        .collect();
+    let omit_newline = matches.get_flag("omit_newline");
 
     print!("{}{}", text.join(" "), if omit_newline {""} else {"\n"})
 }
